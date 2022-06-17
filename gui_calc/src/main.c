@@ -28,14 +28,14 @@ static void activate (GtkApplication *app,gpointer user_data)
     GtkWidget *dividebutton;
     GtkWidget *clearbutton;
     GtkWidget *backbutton;
-    
+    GtkWidget *input;
     
 
     // create the window and associate a title
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_application (GTK_WINDOW (window), GTK_APPLICATION (app));
 	gtk_window_set_title (GTK_WINDOW (window), "Calculator");
-    gtk_window_set_default_size(GTK_WINDOW(window), 600, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), 300, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
     // Create a box and add it to the window 
@@ -216,6 +216,13 @@ static void activate (GtkApplication *app,gpointer user_data)
     gtk_widget_grab_focus(backbutton);
 
     
+    input = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(input),"INPUT");
+    gtk_fixed_put(GTK_FIXED(fixed), input, 0, 140);
+    gtk_widget_set_size_request(input, 350, 100);
+    gtk_box_pack_start(GTK_BOX(box),input,FALSE,FALSE,0);
+
+
 	gtk_widget_show_all (GTK_WIDGET (window));
 }
 
@@ -230,3 +237,4 @@ int main (int argc, char **argv)
 	g_object_unref (app);
 	return status;
 }
+
