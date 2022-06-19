@@ -1,34 +1,62 @@
-#include <gtk/gtk.h>
+/* 
+* Author: Stundner Marco
+* Filename: main.c
+* Task: GTK3 GUI Calc
+* https://github.com/DevMarcoStundner/GUI_Calc.git
+* Date 20.04.22
+*/
 
-static void activate (GtkApplication *app,gpointer user_data)
+#include <gtk/gtk.h>
+#include "tinyexpr.h"
+
+struct calc_arg
 {
+    GtkWidget *input_label;
+    GtkWidget *equalbutton;
+};
+
+
+static void equal_func(GtkWidget *widget, gpointer data)
+{
+    struct calc_arg *p = (struct calc_arg *) data;
+    gtk_label_set_text (GTK_LABEL (p->input_label), "Test" );
+}
+
+static void activate (GtkApplication *app, gpointer user_data)
+{
+    struct calc_arg *m = (struct calc_arg *) user_data;
+
 	GtkWidget *window;
     GtkWidget *box;
     GtkWidget *fixed;
+
     GtkWidget *zerobutton;
     GtkWidget *onebutton;
+    GtkWidget *twobutton;
+    GtkWidget *threebutton;
     GtkWidget *fourbutton;
+    GtkWidget *fivebutton;
+    GtkWidget *sixbutton;
     GtkWidget *sevenbutton;
+    GtkWidget *eightbutton;
+    GtkWidget *ninebutton;
+
     GtkWidget *dotbutton;
     GtkWidget *percentbutton;
     GtkWidget *plusbutton;
-    GtkWidget *equalbutton;
+   // GtkWidget *equalbutton;
     GtkWidget *minusbutton;
-    GtkWidget *twobutton;
-    GtkWidget *threebutton;
     GtkWidget *squarebutton;
     GtkWidget *sqrtbutton;
     GtkWidget *rbracebutton;
     GtkWidget *lbracebutton;
     GtkWidget *mulbutton;
-    GtkWidget *sixbutton;
-    GtkWidget *fivebutton;
-    GtkWidget *eightbutton;
-    GtkWidget *ninebutton;
     GtkWidget *dividebutton;
     GtkWidget *clearbutton;
     GtkWidget *backbutton;
-    GtkWidget *input;
+
+   // GtkWidget *input_label;
+    //GtkWidget *output_label;
     
 
     // create the window and associate a title
@@ -42,11 +70,11 @@ static void activate (GtkApplication *app,gpointer user_data)
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
     gtk_container_add(GTK_CONTAINER(window), box);
 
-    /* Create a fixed container and add it to the box */
+    // Create a fixed container and add it to the box 
     fixed = gtk_fixed_new();
-    gtk_box_pack_start(GTK_BOX(box), fixed, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(box), fixed, TRUE, TRUE, 4);
 
-    /* Create new buttons */
+    // Create new buttons 
     //@400
     zerobutton = gtk_button_new_with_label("0");
     gtk_widget_set_size_request(zerobutton, 50, 25);          //size of button
@@ -76,12 +104,12 @@ static void activate (GtkApplication *app,gpointer user_data)
     gtk_widget_set_tooltip_text(plusbutton, "Left-click to change the button label"); //Tooltip
     gtk_widget_grab_focus(plusbutton);
 
-    equalbutton = gtk_button_new_with_label("=");
-    gtk_widget_set_size_request(equalbutton, 110, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), equalbutton, 240, 400);      //place of button
-    //g_signal_connect(GTK_BUTTON(equalbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(equalbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(equalbutton);
+    m->equalbutton = gtk_button_new_with_label("=");
+    gtk_widget_set_size_request(m->equalbutton, 110, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->equalbutton, 240, 400);      //place of button
+    g_signal_connect(m->equalbutton, "clicked", G_CALLBACK(equal_func), (gpointer) m); //function behind button
+    gtk_widget_set_tooltip_text(m->equalbutton, "Left-click to change the button label"); //Tooltip
+    gtk_widget_grab_focus(m->equalbutton);
 
     //@350
     onebutton = gtk_button_new_with_label("1");
@@ -215,12 +243,11 @@ static void activate (GtkApplication *app,gpointer user_data)
     gtk_widget_set_tooltip_text(backbutton, "Left-click to change the button label"); //Tooltip
     gtk_widget_grab_focus(backbutton);
 
-    
-    input = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(input),"INPUT");
-    gtk_fixed_put(GTK_FIXED(fixed), input, 0, 140);
-    gtk_widget_set_size_request(input, 350, 100);
-    gtk_box_pack_start(GTK_BOX(box),input,FALSE,FALSE,0);
+
+    m->input_label = gtk_label_new("INPUT");
+    gtk_fixed_put(GTK_FIXED(fixed), m->input_label, 0, 140);
+    gtk_widget_set_size_request(m->input_label, 350, 100);
+
 
 
 	gtk_widget_show_all (GTK_WIDGET (window));
@@ -231,10 +258,13 @@ int main (int argc, char **argv)
 	GtkApplication *app;
 	int status;
 
+    struct calc_arg *d = g_malloc (sizeof (struct calc_arg));
+
 	app = gtk_application_new ("org.gtk.minimal", G_APPLICATION_FLAGS_NONE);
-	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+	g_signal_connect (app, "activate", G_CALLBACK (activate), (gpointer) d);
 	status = g_application_run (G_APPLICATION (app), argc, argv);
 	g_object_unref (app);
+    g_free (d);
 	return status;
 }
 
