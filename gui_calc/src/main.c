@@ -3,7 +3,7 @@
 * Filename: main.c
 * Task: GTK3 GUI Calc
 * https://github.com/DevMarcoStundner/GUI_Calc.git
-* Date 20.04.22
+* Date 20.06.22
 */
 
 #include <gtk/gtk.h>
@@ -18,8 +18,12 @@ struct calc_arg
 
 static void equal_func(GtkWidget *widget, gpointer data)
 {
+    const char *text = NULL;
+    int *error = NULL;
     struct calc_arg *p = (struct calc_arg *) data;
-    gtk_label_set_text (GTK_LABEL (p->input_label), "Test" );
+    //gtk_entry_set_text (GTK_ENTRY (p->input_label), "Test" );
+    text = gtk_entry_get_text (GTK_ENTRY (p->input_label));
+    printf("%f\n",te_interp(text, error));
 }
 
 static void activate (GtkApplication *app, gpointer user_data)
@@ -244,9 +248,11 @@ static void activate (GtkApplication *app, gpointer user_data)
     gtk_widget_grab_focus(backbutton);
 
 
-    m->input_label = gtk_label_new("INPUT");
+    m->input_label = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(m->input_label),"INPUT");
     gtk_fixed_put(GTK_FIXED(fixed), m->input_label, 0, 140);
     gtk_widget_set_size_request(m->input_label, 350, 100);
+    gtk_box_pack_start(GTK_BOX(box),m->input_label,FALSE,FALSE,0);
 
 
 
