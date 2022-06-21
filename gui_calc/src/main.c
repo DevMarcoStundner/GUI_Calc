@@ -14,6 +14,10 @@
 struct calc_arg
 {
     GtkWidget *input_entry;
+    GtkWidget *history_label1;
+    GtkWidget *history_label2;
+    GtkWidget *history_label3;
+
     GtkWidget *equalbutton;
     GtkWidget *zerobutton;
     GtkWidget *onebutton;
@@ -38,6 +42,11 @@ struct calc_arg
     GtkWidget *dividebutton;
     GtkWidget *clearbutton;
     GtkWidget *backbutton;
+    const char *text;
+    const char *history1;
+    const char *history2;
+    const char *history3;
+    int history_index;
 };
 
 
@@ -162,18 +171,62 @@ static void print_button(GtkWidget *widget, gpointer data)
     g_free(buffer2);
 }
 
+static void calc_history(GtkWidget *widget, gpointer data)
+{
+    struct calc_arg *p = (struct calc_arg *) data;
+
+    if(p->history_index == 2)
+    {
+        p->history3 = p->history2;
+        gtk_label_set_text(GTK_LABEL (p->history_label3),p->history3);  
+
+        p->history2 = p->history1;
+        gtk_label_set_text(GTK_LABEL (p->history_label2),p->history2);   
+        
+        p->history1 = p->text;
+        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);   
+
+        p->history3 = p->history2; 
+        p->history2 = p->history1;
+        p->history1 = p->text;
+    }
+
+    if(p->history_index == 1)
+    {
+        printf("anfang%s\n",p->history2);
+        printf("%s\n",p->history1);
+        p->history2 = p->history1;
+        gtk_label_set_text(GTK_LABEL (p->history_label2),p->history2);   
+        
+        printf("danach%s\n",p->history2);
+        printf("%s\n",p->history1);
+        p->history1 = p->text;
+        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);
+        p->history_index++;
+    }
+
+    if(p->history_index == 0)
+    {
+        p->history1 = p->text;
+        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);
+        p->history_index++;
+    }
+    
+}
 
 static void equal_func(GtkWidget *widget, gpointer data)
 {
-    const char *text = NULL;
     int *error = NULL;
     double result = 0;
     struct calc_arg *p = (struct calc_arg *) data;
-    text = gtk_entry_get_text (GTK_ENTRY (p->input_entry));
-    result = te_interp(text, error);
+    p->text = gtk_entry_get_text (GTK_ENTRY (p->input_entry));
+    calc_history(p->history_label1, p);
+    result = te_interp(p->text, error);
     char *output = g_strdup_printf ("%f", result);
     gtk_entry_set_text (GTK_ENTRY (p->input_entry), output);
+    
 }
+
 
 static void activate (GtkApplication *app, gpointer user_data)
 {
@@ -199,6 +252,16 @@ static void activate (GtkApplication *app, gpointer user_data)
     // Create a fixed container and add it to the box 
     fixed = gtk_fixed_new();
     gtk_box_pack_start(GTK_BOX(box), fixed, TRUE, TRUE, 4);
+
+    // Creates labels for the history
+    m->history_label1 = gtk_label_new("");
+    gtk_fixed_put(GTK_FIXED(fixed), m->history_label1, 0, 0);
+
+    m->history_label2 = gtk_label_new("");
+    gtk_fixed_put(GTK_FIXED(fixed), m->history_label2, 0, 25);
+
+    m->history_label3 = gtk_label_new("");
+    gtk_fixed_put(GTK_FIXED(fixed), m->history_label3, 0, 50);
 
     // Create new buttons 
     //@400
@@ -349,7 +412,6 @@ static void activate (GtkApplication *app, gpointer user_data)
     gtk_entry_set_placeholder_text(GTK_ENTRY(m->input_entry),"INPUT");
     gtk_fixed_put(GTK_FIXED(fixed), m->input_entry, 0, 190);
     gtk_widget_set_size_request(m->input_entry, 350, 50);
- //   gtk_box_pack_start(GTK_BOX(box),m->input_entry,FALSE,FALSE,0);
 
 	gtk_widget_show_all (GTK_WIDGET (window));
 }
@@ -358,8 +420,13 @@ int main (int argc, char **argv)
 {
 	GtkApplication *app;
 	int status;
-
     struct calc_arg *d = g_malloc (sizeof (struct calc_arg));
+    d->history1 = "0";
+    d->history2 = "0";
+    d->history2 = "0";
+    d->history_index = 0;
+
+    
 
 	app = gtk_application_new ("org.gtk.minimal", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect (app, "activate", G_CALLBACK (activate), (gpointer) d);
