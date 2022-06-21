@@ -11,6 +11,7 @@
 #include "tinyexpr.h"
 #include <stdbool.h>
 
+
 struct calc_arg
 {
     GtkWidget *input_entry;
@@ -46,6 +47,7 @@ struct calc_arg
     const char *history1;
     const char *history2;
     const char *history3;
+    char history_list[3][256];
     int history_index;
 };
 
@@ -177,38 +179,31 @@ static void calc_history(GtkWidget *widget, gpointer data)
 
     if(p->history_index == 2)
     {
-        p->history3 = p->history2;
-        gtk_label_set_text(GTK_LABEL (p->history_label3),p->history3);  
+        strcpy(&(p->history_list[2][0]),&(p->history_list[1][0]));
+        gtk_label_set_text(GTK_LABEL (p->history_label3),&(p->history_list[2][0]));  
 
-        p->history2 = p->history1;
-        gtk_label_set_text(GTK_LABEL (p->history_label2),p->history2);   
+        strcpy(&(p->history_list[1][0]),&(p->history_list[0][0]));
+        gtk_label_set_text(GTK_LABEL (p->history_label2),&(p->history_list[1][0]));   
         
-        p->history1 = p->text;
-        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);   
+        strcpy(&(p->history_list[0][0]),p->text);
+        gtk_label_set_text(GTK_LABEL (p->history_label1),&(p->history_list[0][0]));   
 
-        p->history3 = p->history2; 
-        p->history2 = p->history1;
-        p->history1 = p->text;
     }
 
     if(p->history_index == 1)
     {
-        printf("anfang%s\n",p->history2);
-        printf("%s\n",p->history1);
-        p->history2 = p->history1;
-        gtk_label_set_text(GTK_LABEL (p->history_label2),p->history2);   
+        strcpy(&(p->history_list[1][0]),&(p->history_list[0][0]));
+        gtk_label_set_text(GTK_LABEL (p->history_label2),&(p->history_list[1][0]));   
         
-        printf("danach%s\n",p->history2);
-        printf("%s\n",p->history1);
-        p->history1 = p->text;
-        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);
+        strcpy(&(p->history_list[0][0]),p->text);
+        gtk_label_set_text(GTK_LABEL (p->history_label1),&(p->history_list[0][0]));
         p->history_index++;
-    }
+    } 
 
     if(p->history_index == 0)
     {
-        p->history1 = p->text;
-        gtk_label_set_text(GTK_LABEL (p->history_label1),p->history1);
+        strcpy(&(p->history_list[0][0]),p->text);
+        gtk_label_set_text(GTK_LABEL (p->history_label1),&(p->history_list[0][0]));
         p->history_index++;
     }
     
@@ -326,7 +321,7 @@ static void activate (GtkApplication *app, gpointer user_data)
     g_signal_connect(GTK_BUTTON(m->squarebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
     gtk_widget_grab_focus(m->squarebutton);
 
-    m->sqrtbutton = gtk_button_new_with_label("x²");
+    m->sqrtbutton = gtk_button_new_with_label("sqr");
     gtk_widget_set_size_request(m->sqrtbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(fixed), m->sqrtbutton, 300, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->sqrtbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
@@ -425,8 +420,6 @@ int main (int argc, char **argv)
     d->history2 = "0";
     d->history2 = "0";
     d->history_index = 0;
-
-    
 
 	app = gtk_application_new ("org.gtk.minimal", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect (app, "activate", G_CALLBACK (activate), (gpointer) d);
