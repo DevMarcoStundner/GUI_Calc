@@ -4,36 +4,17 @@
 * Task: GTK3 GUI Calc
 * https://github.com/DevMarcoStundner/GUI_Calc.git
 * Date 20.06.22
+* clang main.c $(pkg-config --cflags --libs gtk+-3.0) -Wall -g -I. tinyexpr.c -lm
 */
 
 #include <gtk/gtk.h>
 #include "tinyexpr.h"
+#include <stdbool.h>
 
 struct calc_arg
 {
-    GtkWidget *input_label;
+    GtkWidget *input_entry;
     GtkWidget *equalbutton;
-};
-
-
-static void equal_func(GtkWidget *widget, gpointer data)
-{
-    const char *text = NULL;
-    int *error = NULL;
-    struct calc_arg *p = (struct calc_arg *) data;
-    //gtk_entry_set_text (GTK_ENTRY (p->input_label), "Test" );
-    text = gtk_entry_get_text (GTK_ENTRY (p->input_label));
-    printf("%f\n",te_interp(text, error));
-}
-
-static void activate (GtkApplication *app, gpointer user_data)
-{
-    struct calc_arg *m = (struct calc_arg *) user_data;
-
-	GtkWidget *window;
-    GtkWidget *box;
-    GtkWidget *fixed;
-
     GtkWidget *zerobutton;
     GtkWidget *onebutton;
     GtkWidget *twobutton;
@@ -48,7 +29,6 @@ static void activate (GtkApplication *app, gpointer user_data)
     GtkWidget *dotbutton;
     GtkWidget *percentbutton;
     GtkWidget *plusbutton;
-   // GtkWidget *equalbutton;
     GtkWidget *minusbutton;
     GtkWidget *squarebutton;
     GtkWidget *sqrtbutton;
@@ -58,9 +38,151 @@ static void activate (GtkApplication *app, gpointer user_data)
     GtkWidget *dividebutton;
     GtkWidget *clearbutton;
     GtkWidget *backbutton;
+};
 
-   // GtkWidget *input_label;
-    //GtkWidget *output_label;
+
+static void print_button(GtkWidget *widget, gpointer data)
+{
+    struct calc_arg *c = (struct calc_arg*)data;
+    gchar *buffer1, *buffer2;
+
+    buffer1 = (gchar*) gtk_entry_get_text (GTK_ENTRY (c->input_entry));
+    buffer2 = g_malloc (sizeof(gchar) * (strlen(buffer1) + 256));
+    if(widget == c->zerobutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'0');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->onebutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'1');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->twobutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'2');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->threebutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'3');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->fourbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'4');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->fivebutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'5');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->sixbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'6');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->sevenbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'7');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->eightbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'8');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->ninebutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'9');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->dotbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'.');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->percentbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'%');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->plusbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'+');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->minusbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'-');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->squarebutton)
+    {
+        sprintf(buffer2,"(%s)^%c",buffer1,'2');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    }
+    if(widget == c->sqrtbutton)
+    {
+        sprintf(buffer2,"sqrt(%s)",buffer1);
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);   
+    }
+    if(widget == c->rbracebutton)
+    {
+        sprintf(buffer2,"%s)",buffer1);
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);   
+    }
+    if(widget == c->lbracebutton)
+    {
+        sprintf(buffer2,"(%s",buffer1);
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);   
+    }
+    if(widget == c->mulbutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'*');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);   
+    }
+    if(widget == c->dividebutton)
+    {
+        sprintf(buffer2,"%s%c",buffer1,'/');
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);  
+    }
+    if(widget == c->clearbutton)
+    {
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), "");  
+    }
+    if(widget == c->backbutton)
+    {
+
+        sprintf(buffer2,"%s",buffer1);
+        buffer2[strlen(buffer2)-1] = '\0'; 
+        gtk_entry_set_text (GTK_ENTRY (c->input_entry), buffer2);
+    } 
+    g_free(buffer2);
+}
+
+
+static void equal_func(GtkWidget *widget, gpointer data)
+{
+    const char *text = NULL;
+    int *error = NULL;
+    double result = 0;
+    struct calc_arg *p = (struct calc_arg *) data;
+    text = gtk_entry_get_text (GTK_ENTRY (p->input_entry));
+    result = te_interp(text, error);
+    char *output = g_strdup_printf ("%f", result);
+    gtk_entry_set_text (GTK_ENTRY (p->input_entry), output);
+}
+
+static void activate (GtkApplication *app, gpointer user_data)
+{
+    struct calc_arg *m = (struct calc_arg *) user_data;
+
+	GtkWidget *window;
+    GtkWidget *box;
+    GtkWidget *fixed;
+
     
 
     // create the window and associate a title
@@ -80,181 +202,154 @@ static void activate (GtkApplication *app, gpointer user_data)
 
     // Create new buttons 
     //@400
-    zerobutton = gtk_button_new_with_label("0");
-    gtk_widget_set_size_request(zerobutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), zerobutton, 0, 400);      //place of button
-    //g_signal_connect(GTK_BUTTON(zerobutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(zerobutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(zerobutton);
+    m->zerobutton = gtk_button_new_with_label("0");
+    gtk_widget_set_size_request(m->zerobutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->zerobutton, 0, 400);      //place of button
+    g_signal_connect(GTK_BUTTON(m->zerobutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->zerobutton);
 
-    dotbutton = gtk_button_new_with_label(".");
-    gtk_widget_set_size_request(dotbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), dotbutton, 60, 400);      //place of button
-    //g_signal_connect(GTK_BUTTON(dotbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(dotbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(dotbutton);
+    m->dotbutton = gtk_button_new_with_label(".");
+    gtk_widget_set_size_request(m->dotbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->dotbutton, 60, 400);      //place of button
+    g_signal_connect(GTK_BUTTON(m->dotbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->dotbutton);
 
-    percentbutton = gtk_button_new_with_label("%");
-    gtk_widget_set_size_request(percentbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), percentbutton, 120, 400);      //place of button
-    //g_signal_connect(GTK_BUTTON(percentbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(percentbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(percentbutton);
+    m->percentbutton = gtk_button_new_with_label("%");
+    gtk_widget_set_size_request(m->percentbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->percentbutton, 120, 400);      //place of button
+    g_signal_connect(GTK_BUTTON(m->percentbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->percentbutton);
 
-    plusbutton = gtk_button_new_with_label("+");
-    gtk_widget_set_size_request(plusbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), plusbutton, 180, 400);      //place of button
-    //g_signal_connect(GTK_BUTTON(plusbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(plusbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(plusbutton);
+    m->plusbutton = gtk_button_new_with_label("+");
+    gtk_widget_set_size_request(m->plusbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->plusbutton, 180, 400);      //place of button
+    g_signal_connect(GTK_BUTTON(m->plusbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->plusbutton);
 
     m->equalbutton = gtk_button_new_with_label("=");
     gtk_widget_set_size_request(m->equalbutton, 110, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(fixed), m->equalbutton, 240, 400);      //place of button
     g_signal_connect(m->equalbutton, "clicked", G_CALLBACK(equal_func), (gpointer) m); //function behind button
-    gtk_widget_set_tooltip_text(m->equalbutton, "Left-click to change the button label"); //Tooltip
     gtk_widget_grab_focus(m->equalbutton);
 
     //@350
-    onebutton = gtk_button_new_with_label("1");
-    gtk_widget_set_size_request(onebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), onebutton, 0, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(onebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(onebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(onebutton);
+    m->onebutton = gtk_button_new_with_label("1");
+    gtk_widget_set_size_request(m->onebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->onebutton, 0, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->onebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->onebutton);
 
-    twobutton = gtk_button_new_with_label("2");
-    gtk_widget_set_size_request(twobutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), twobutton, 60, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(twobutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(twobutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(twobutton);
+    m->twobutton = gtk_button_new_with_label("2");
+    gtk_widget_set_size_request(m->twobutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->twobutton, 60, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->twobutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->twobutton);
 
-    threebutton = gtk_button_new_with_label("3");
-    gtk_widget_set_size_request(threebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), threebutton, 120, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(threebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(threebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(threebutton);
+    m->threebutton = gtk_button_new_with_label("3");
+    gtk_widget_set_size_request(m->threebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->threebutton, 120, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->threebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->threebutton);
 
-    minusbutton = gtk_button_new_with_label("-");
-    gtk_widget_set_size_request(minusbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), minusbutton, 180, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(minusbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(minusbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(minusbutton);
+    m->minusbutton = gtk_button_new_with_label("-");
+    gtk_widget_set_size_request(m->minusbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->minusbutton, 180, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->minusbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->minusbutton);
 
-    squarebutton = gtk_button_new_with_label("x²");
-    gtk_widget_set_size_request(squarebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), squarebutton, 240, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(squarebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(squarebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(squarebutton);
+    m->squarebutton = gtk_button_new_with_label("x²");
+    gtk_widget_set_size_request(m->squarebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->squarebutton, 240, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->squarebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->squarebutton);
 
-    sqrtbutton = gtk_button_new_with_label("x²");
-    gtk_widget_set_size_request(sqrtbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), sqrtbutton, 300, 350);      //place of button
-    //g_signal_connect(GTK_BUTTON(sqrtbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(sqrtbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(sqrtbutton);
+    m->sqrtbutton = gtk_button_new_with_label("x²");
+    gtk_widget_set_size_request(m->sqrtbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->sqrtbutton, 300, 350);      //place of button
+    g_signal_connect(GTK_BUTTON(m->sqrtbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->sqrtbutton);
 
 
     //@300
-    fourbutton = gtk_button_new_with_label("4");
-    gtk_widget_set_size_request(fourbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), fourbutton, 0, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(fourbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(fourbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(fourbutton);
+    m->fourbutton = gtk_button_new_with_label("4");
+    gtk_widget_set_size_request(m->fourbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->fourbutton, 0, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->fourbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->fourbutton);
 
-    fivebutton = gtk_button_new_with_label("5");
-    gtk_widget_set_size_request(fivebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), fivebutton, 60, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(fivebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(fivebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(fivebutton);
+    m->fivebutton = gtk_button_new_with_label("5");
+    gtk_widget_set_size_request(m->fivebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->fivebutton, 60, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->fivebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->fivebutton);
 
-    sixbutton = gtk_button_new_with_label("6");
-    gtk_widget_set_size_request(sixbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), sixbutton, 120, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(sixbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(sixbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(sixbutton);
+    m->sixbutton = gtk_button_new_with_label("6");
+    gtk_widget_set_size_request(m->sixbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->sixbutton, 120, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->sixbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->sixbutton);
 
-    mulbutton = gtk_button_new_with_label("*");
-    gtk_widget_set_size_request(mulbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), mulbutton, 180, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(mulbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(mulbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(mulbutton);
+    m->mulbutton = gtk_button_new_with_label("*");
+    gtk_widget_set_size_request(m->mulbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->mulbutton, 180, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->mulbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->mulbutton);
 
-    lbracebutton = gtk_button_new_with_label("(");
-    gtk_widget_set_size_request(lbracebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), lbracebutton, 240, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(lbracebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(lbracebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(lbracebutton);
+    m->lbracebutton = gtk_button_new_with_label("(");
+    gtk_widget_set_size_request(m->lbracebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->lbracebutton, 240, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->lbracebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->lbracebutton);
 
-    rbracebutton = gtk_button_new_with_label(")");
-    gtk_widget_set_size_request(rbracebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), rbracebutton, 300, 300);      //place of button
-    //g_signal_connect(GTK_BUTTON(rbracebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(rbracebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(rbracebutton);
-
+    m->rbracebutton = gtk_button_new_with_label(")");
+    gtk_widget_set_size_request(m->rbracebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->rbracebutton, 300, 300);      //place of button
+    g_signal_connect(GTK_BUTTON(m->rbracebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->rbracebutton);
 
 
     //@250
-    sevenbutton = gtk_button_new_with_label("7");
-    gtk_widget_set_size_request(sevenbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), sevenbutton, 0, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(sevenbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(sevenbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(sevenbutton);
+    m->sevenbutton = gtk_button_new_with_label("7");
+    gtk_widget_set_size_request(m->sevenbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->sevenbutton, 0, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->sevenbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->sevenbutton);
 
-    eightbutton = gtk_button_new_with_label("8");
-    gtk_widget_set_size_request(eightbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), eightbutton, 60, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(eightbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(eightbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(eightbutton);
+    m->eightbutton = gtk_button_new_with_label("8");
+    gtk_widget_set_size_request(m->eightbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->eightbutton, 60, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->eightbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->eightbutton);
 
-    ninebutton = gtk_button_new_with_label("9");
-    gtk_widget_set_size_request(ninebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), ninebutton, 120, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(ninebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(ninebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(ninebutton);
+    m->ninebutton = gtk_button_new_with_label("9");
+    gtk_widget_set_size_request(m->ninebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->ninebutton, 120, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->ninebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->ninebutton);
 
-    dividebutton = gtk_button_new_with_label("/");
-    gtk_widget_set_size_request(dividebutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), dividebutton, 180, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(dividebutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(dividebutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(dividebutton);
+    m->dividebutton = gtk_button_new_with_label("/");
+    gtk_widget_set_size_request(m->dividebutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->dividebutton, 180, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->dividebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->dividebutton);
 
-    clearbutton = gtk_button_new_with_label("clear");
-    gtk_widget_set_size_request(clearbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), clearbutton, 240, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(clearbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(clearbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(clearbutton);
+    m->clearbutton = gtk_button_new_with_label("C");
+    gtk_widget_set_size_request(m->clearbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->clearbutton, 240, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->clearbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->clearbutton);
 
-    backbutton = gtk_button_new_with_label("<-");
-    gtk_widget_set_size_request(backbutton, 50, 25);          //size of button
-    gtk_fixed_put(GTK_FIXED(fixed), backbutton, 300, 250);      //place of button
-    //g_signal_connect(GTK_BUTTON(backbutton), "clicked",G_CALLBACK(print_button), "lb"); //function behind button
-    gtk_widget_set_tooltip_text(backbutton, "Left-click to change the button label"); //Tooltip
-    gtk_widget_grab_focus(backbutton);
+    m->backbutton = gtk_button_new_with_label("<-");
+    gtk_widget_set_size_request(m->backbutton, 50, 25);          //size of button
+    gtk_fixed_put(GTK_FIXED(fixed), m->backbutton, 300, 250);      //place of button
+    g_signal_connect(GTK_BUTTON(m->backbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
+    gtk_widget_grab_focus(m->backbutton);
 
-
-    m->input_label = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(m->input_label),"INPUT");
-    gtk_fixed_put(GTK_FIXED(fixed), m->input_label, 0, 140);
-    gtk_widget_set_size_request(m->input_label, 350, 100);
-    gtk_box_pack_start(GTK_BOX(box),m->input_label,FALSE,FALSE,0);
-
-
+    m->input_entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(m->input_entry),"INPUT");
+    gtk_fixed_put(GTK_FIXED(fixed), m->input_entry, 0, 190);
+    gtk_widget_set_size_request(m->input_entry, 350, 50);
+ //   gtk_box_pack_start(GTK_BOX(box),m->input_entry,FALSE,FALSE,0);
 
 	gtk_widget_show_all (GTK_WIDGET (window));
 }
