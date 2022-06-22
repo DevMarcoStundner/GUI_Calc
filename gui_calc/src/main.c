@@ -250,13 +250,13 @@ static void calc_history(GtkWidget *widget, gpointer data)
 
 static void equal_func(GtkWidget *widget, gpointer data)
 {
+
     int error;
     double result = 0;
     struct calc_arg *p = (struct calc_arg *) data;
     p->text = gtk_entry_get_text (GTK_ENTRY (p->input_entry));
     calc_history(p->history_label1, p);
     result = te_interp(p->text, &error);
-    printf("%d",error);
     if(error != 0)
     {
         error_infobar(p->infobar, p);
@@ -279,6 +279,7 @@ static void activate (GtkApplication *app, gpointer user_data)
 	gtk_window_set_application (GTK_WINDOW (window), GTK_APPLICATION (app));
 	gtk_window_set_title (GTK_WINDOW (window), "Calculator");
     gtk_window_set_default_size(GTK_WINDOW(window), 300, 400);
+    gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
     // Create a box and add it to the window 
@@ -305,68 +306,59 @@ static void activate (GtkApplication *app, gpointer user_data)
     gtk_widget_set_size_request(m->zerobutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->zerobutton, 0, 400);      //place of button
     g_signal_connect(GTK_BUTTON(m->zerobutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->zerobutton);
 
     m->dotbutton = gtk_button_new_with_label(".");
     gtk_widget_set_size_request(m->dotbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->dotbutton, 60, 400);      //place of button
     g_signal_connect(GTK_BUTTON(m->dotbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->dotbutton);
 
     m->percentbutton = gtk_button_new_with_label("%");
     gtk_widget_set_size_request(m->percentbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->percentbutton, 120, 400);      //place of button
     g_signal_connect(GTK_BUTTON(m->percentbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->percentbutton);
+    
 
     m->plusbutton = gtk_button_new_with_label("+");
     gtk_widget_set_size_request(m->plusbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->plusbutton, 180, 400);      //place of button
     g_signal_connect(GTK_BUTTON(m->plusbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->plusbutton);
 
     m->equalbutton = gtk_button_new_with_label("=");
     gtk_widget_set_size_request(m->equalbutton, 110, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->equalbutton, 240, 400);      //place of button
     g_signal_connect(m->equalbutton, "clicked", G_CALLBACK(equal_func), (gpointer) m); //function behind button
-    gtk_widget_grab_focus(m->equalbutton);
+    
 
     //@350
     m->onebutton = gtk_button_new_with_label("1");
     gtk_widget_set_size_request(m->onebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->onebutton, 0, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->onebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->onebutton);
 
     m->twobutton = gtk_button_new_with_label("2");
     gtk_widget_set_size_request(m->twobutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->twobutton, 60, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->twobutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->twobutton);
 
     m->threebutton = gtk_button_new_with_label("3");
     gtk_widget_set_size_request(m->threebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->threebutton, 120, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->threebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->threebutton);
 
     m->minusbutton = gtk_button_new_with_label("-");
     gtk_widget_set_size_request(m->minusbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->minusbutton, 180, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->minusbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->minusbutton);
 
     m->squarebutton = gtk_button_new_with_label("x²");
     gtk_widget_set_size_request(m->squarebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->squarebutton, 240, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->squarebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->squarebutton);
 
     m->sqrtbutton = gtk_button_new_with_label("sqr");
     gtk_widget_set_size_request(m->sqrtbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->sqrtbutton, 300, 350);      //place of button
     g_signal_connect(GTK_BUTTON(m->sqrtbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->sqrtbutton);
 
 
     //@300
@@ -374,37 +366,31 @@ static void activate (GtkApplication *app, gpointer user_data)
     gtk_widget_set_size_request(m->fourbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->fourbutton, 0, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->fourbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->fourbutton);
 
     m->fivebutton = gtk_button_new_with_label("5");
     gtk_widget_set_size_request(m->fivebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->fivebutton, 60, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->fivebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->fivebutton);
 
     m->sixbutton = gtk_button_new_with_label("6");
     gtk_widget_set_size_request(m->sixbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->sixbutton, 120, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->sixbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->sixbutton);
 
     m->mulbutton = gtk_button_new_with_label("*");
     gtk_widget_set_size_request(m->mulbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->mulbutton, 180, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->mulbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->mulbutton);
 
     m->lbracebutton = gtk_button_new_with_label("(");
     gtk_widget_set_size_request(m->lbracebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->lbracebutton, 240, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->lbracebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->lbracebutton);
 
     m->rbracebutton = gtk_button_new_with_label(")");
     gtk_widget_set_size_request(m->rbracebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->rbracebutton, 300, 300);      //place of button
     g_signal_connect(GTK_BUTTON(m->rbracebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->rbracebutton);
 
 
     //@250
@@ -412,37 +398,31 @@ static void activate (GtkApplication *app, gpointer user_data)
     gtk_widget_set_size_request(m->sevenbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->sevenbutton, 0, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->sevenbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->sevenbutton);
 
     m->eightbutton = gtk_button_new_with_label("8");
     gtk_widget_set_size_request(m->eightbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->eightbutton, 60, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->eightbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->eightbutton);
 
     m->ninebutton = gtk_button_new_with_label("9");
     gtk_widget_set_size_request(m->ninebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->ninebutton, 120, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->ninebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->ninebutton);
 
     m->dividebutton = gtk_button_new_with_label("/");
     gtk_widget_set_size_request(m->dividebutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->dividebutton, 180, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->dividebutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->dividebutton);
 
     m->clearbutton = gtk_button_new_with_label("C");
     gtk_widget_set_size_request(m->clearbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->clearbutton, 240, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->clearbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->clearbutton);
 
     m->backbutton = gtk_button_new_with_label("<-");
     gtk_widget_set_size_request(m->backbutton, 50, 25);          //size of button
     gtk_fixed_put(GTK_FIXED(m->fixed), m->backbutton, 300, 250);      //place of button
     g_signal_connect(GTK_BUTTON(m->backbutton), "clicked",G_CALLBACK(print_button), m); //function behind button
-    gtk_widget_grab_focus(m->backbutton);
 
     m->input_entry = gtk_entry_new();
     gtk_entry_set_placeholder_text(GTK_ENTRY(m->input_entry),"INPUT");
